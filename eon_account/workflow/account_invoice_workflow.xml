@@ -1,0 +1,17 @@
+<openerp>
+    <data>
+
+        <!-- Modifying Workflow in Account Invoice -->
+        <record id="account.act_proforma2" model="workflow.activity">
+            <field name="wkf_id" ref="account.wkf"/>
+            <field name="name">proforma2</field>
+            <field name="action">get_sequence() 
+                write({'state':'proforma2'})
+                create_proforma_invoice()
+                action_proforma()
+            </field>
+            <field name="kind">function</field>
+        </record>
+    
+    </data>
+</openerp>

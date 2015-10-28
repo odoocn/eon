@@ -1,0 +1,180 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+
+        <!-- tree view  -->
+        <record id="courer_tree" model="ir.ui.view">
+            <field name="name">view_tree_courier</field>
+            <field name="model">courier.courier</field>
+            <field name="arch" type="xml">
+
+                <tree string="couriers list">
+                
+                    <field name="name"/>
+                    <field name="slug"/>
+                    <field name='other_name'/>
+                    <field name="web_url"/>
+                    <field name='phone'/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- form view -->
+        <record id="courer_form" model="ir.ui.view">
+            <field name="name">view_form_courier</field>
+            <field name="model">delivery.grid</field>
+            <field name="arch" type="xml">
+                <form string='Couriers' create="0" edit="0">
+                    <sheet>
+                        <div class="oe_title">
+                            <label class="oe_edit_only" for="name" string="Courier Name"/>
+                            <h1><field name="name" placeholder="Courier Name"/></h1>
+                        </div>
+                        <group >
+                            <group >
+                                <field name="slug" placeholder="Courier code"/>
+                                <field name="web_url" widget='url' />
+                                <field name="is_required_fiedls"/>
+                            </group>
+                            <group >
+                                <field name='other_name'/>
+                                <field name='phone'/>
+                                <field name="default_language" string="Language" />
+                            </group>
+                        </group>
+                        <notebook attrs="{'invisible': [('is_required_fiedls','=', False)]}">
+                        <page string="Requied Fields">
+                            <field name="rec_field_ids" string="Required">
+                                <tree string="Requied fields" editable="bottom">
+                                    <field name="requied_name"/>
+                                </tree>
+                            </field>
+                        </page>
+                        </notebook>
+                       </sheet>
+                </form>
+            </field>
+        </record>
+
+            <!-- create action -->
+        <record id="action_carrier_form" model="ir.actions.act_window">
+            <field name="name">Courier List</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">courier.courier</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+              
+              <p class="oe_view_nocontent_create">
+                Click to define a new couriers Company.
+              </p><p>
+                Each carrier (e.g. UPS) can have several delivery methods (e.g.
+                UPS Express, UPS Standard) with a set of pricing rules attached
+                to each method.
+              </p><p>
+                These methods allow to automatically compute the delivery price
+                according to your settings; on the sales order (based on the
+                quotation) or the invoice (based on the delivery orders).
+              </p>
+            </field>
+        </record>
+
+        <!-- action menu for stock / delivery -->
+        <menuitem action="action_carrier_form" id="courier_menu_action_delivery_carrier_form" parent="delivery.menu_delivery" sequence="2"/>
+        <!-- action menu for sale -->
+        <menuitem action="action_carrier_form" id="sale1_menu_action_delivery_carrier_form" parent="delivery.sale_menu_delivery" sequence="2"/>
+
+<!-- 
+        <!-- config setting in stock -->
+        <record id="view_stock_config_settings_inherit_stock" model="ir.ui.view">
+            <field name="name">stock.config.settings.inherit</field>
+            <field name="model">stock.config.settings</field>
+            <field name="inherit_id" ref="stock.view_stock_config_settings"/>
+            <field name="arch" type="xml">
+                <xpath expr="//group[@name='traceability']" position="after">
+                    <group string="Couriers">
+                        <field name="courier_api_key"/>
+                        <label for="action_get_courier_list
+                            " string="Couriers List"/>
+                        <button name="action_get_courier_list" type="object" string="Sync Couriers" class="btn btn-primary"/>
+
+                    </group>
+                </xpath>
+            </field>
+        </record> -->
+
+
+            <!-- change the partner name with courier company name  -->
+          <!--   <record id="view_delivery_carrier_form_inherit" model="ir.ui.view">
+                <field name="name">delivery.carrier.form</field>
+                <field name="model">delivery.carrier</field>
+                <field name="inherit_id" ref="delivery.view_delivery_carrier_form" />
+                <field name="arch" type="xml">
+                    <xpath expr="//field[@name='partner_id']" position="replace">
+                        <field name="courier_id" class="oe_inline"/>
+                    </xpath>
+                </field>
+            </record> -->
+        
+        <record id="delivery.view_picking_withcarrier_out_form_shipping" model="ir.ui.view">
+            <field name="priority" eval="15"/>
+        </record>
+
+        <record id="view_picking_withcarrier_out_form_1" model="ir.ui.view">
+            <field name="name">aftership.stock.picking_withcarrier.form.view</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="delivery.view_picking_withcarrier_out_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='carrier_id']" position="after"  >
+                        <field name="transporter" create="False" attrs="{'invisible': [('delivery_type', '!=', 'aftership')]}" />
+                </xpath>
+                <xpath expr="//field[@name='carrier_price']" position="replace" >
+                </xpath>
+                <xpath expr="//field[@name='number_of_packages']" position="after" >
+                        <field name="carrier_price" />
+                </xpath>
+            </field>
+        </record>
+
+         <record id="view_order_form_with_carrier_aftership" model="ir.ui.view">
+            <field name="name">delivery.sale.order.form.view.with_carrier.aftership<field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="delivery.view_order_form_with_carrier"/>
+            <field name="arch" type="xml">
+                <div  >
+                    <field name='delivery_price' widget='monetary' class="oe_inline" options="{'currency_field': 'currency_id'}" nolabel="1" attrs="{'invisible': ['|',('carrier_id','=', False), ('delivery_type', '!=', 'aftership')]}"/>
+                    <button name="delivery_set" string="Set price" type="object" class="oe_inline fa fa-arrow-right oe_link" attrs="{'invisible':['|',('carrier_id','=',False),('state','not in',('draft','sent')), ('delivery_type', '!=', 'aftership')]}"/>
+                </div>
+            </field>
+        </record>
+
+
+
+
+
+        <record id="view_delivery_carrier_form_with_provider_aftership" model="ir.ui.view">
+            <field name="name">delivery.carrier.form.provider.aftership</field>
+            <field name="model">delivery.carrier</field>
+            <field name="inherit_id" ref="delivery.view_delivery_carrier_form"/>
+            <field name="arch" type="xml">
+                 <xpath expr="//group[@name='company']">
+                    <field name="shipping_enabled" attrs="{'invisible': [ ('delivery_type', '=', 'aftership')]}"/> 
+                 </xpath>
+                <xpath expr="//group[@name='general']" position='after'>
+                    <group string='Aftership Configuraion' attrs="{'invisible': [('delivery_type', '!=', 'aftership')]}">
+                        <group >
+                            <div class="oe_inline">
+                                <field name="courier_api_key" attrs="{'required': [('delivery_type', '=', 'aftership')]}" />
+                                <button name="action_get_courier_list" type="object" string="Sync Couriers" class="btn btn-primary oe_inline" />
+                            </div> 
+                       
+                        </group>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+
+
+    </data>
+</openerp>

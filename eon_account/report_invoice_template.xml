@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+      <template id="report_emp_sale">
+        <t t-call="report.html_container">
+          <!-- <t t-call="report.internal_layout"> -->
+           <t t-foreach="docs" t-as="o">
+            <h4><center>Proforma Invoice</center></h4>
+               <div class="page">
+                  <div class="container">
+                    <center><h3>Proforma Invoice</h3></center>
+                  <div class="table table-responsive table-bordered">
+                    <table width="100%" class="table table-responsive table-bordered">
+                      <tbody>
+                        <tr>
+                          <td width="50%">
+                              <b>Company address:</b><br/>
+                              <span t-field="o.company_id"/><br/>
+                              <span t-field="o.company_id.street"/><br/>
+                              <span t-field="o.company_id.city"/><br/>
+                              <span t-field="o.company_id.state_id"/><br/>
+                              <span t-field="o.company_id.country_id"/><br/>
+                              Zip Code:<span t-field="o.company_id.zip"/><br/>
+                              Phone:<span t-field="o.company_id.phone"/><br/>
+                              <span t-field="o.company_id.website"/>
+                          </td>
+                          <td width="50%">
+                            <table width="100%" class="table table-bordered">
+                                <tr>
+                                  <td>Proforma Invoice no</td><td><span t-field="o.proforma_number"/>
+                                </td>
+                                </tr>
+                                <tr>
+                                  <td>Proforma Invoice date</td><td><span t-field="o.date_invoice"/>
+                                </td>
+                                </tr>
+                                <tr>
+                                  <td>Proforma Validity date</td><td><span t-field="o.expire_date"/>
+                                </td>
+                                </tr>
+                                <tr>
+                                  <td>Buyers Order no and Date</td><td></td>
+                                </tr>
+                                <tr>
+                                  <td>Other References</td><td></td>
+                                </tr>
+                            </table>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td width="50%"><b>Consignee address</b><br/>
+                              <b><span t-field="o.partner_id.parent_id.name"/></b><br/>
+                              <span t-field="o.partner_id.parent_id.street"/><br/>
+                              <span t-field="o.partner_id.parent_id.city"/><br/>
+                              <span t-field="o.partner_id.parent_id.state_id"/><br/>
+                              <span t-field="o.partner_id.parent_id.country_id"/><br/>
+                              Zip Code:<span t-field="o.partner_id.zip"/><br/>
+                              MO:<span t-field="o.partner_id.parent_id.mobile"/><br/>
+                              Phone:<span t-field="o.partner_id.parent_id.phone"/>
+                          </td>
+                          <td width="50%">
+                            <table width="100%" class="table table-bordered">
+                                <tr>
+                                  <td colspan="2"><b>Buyers(if other than consignee)</b><span t-field="o.proforma_id.delivery_address"/></td>
+                                </tr>
+                                <tr>
+                                  <b><td><b>Termes of payment</b><br/>100% in advance</td></b>
+                                </tr>
+                            </table>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td width="50%">
+                            <table class="table table-responsive table-bordered">
+                                <tr>
+                                  <td>Delivering courier</td>
+                                </tr>
+                                <tr>
+                                  <td>No of packages</td>
+                                </tr>
+                                <tr>
+                                  <td>Total weight</td>
+                                </tr>
+                            </table>
+                           </td>
+                          <td  width="50%"><b>Tearms of delivery</b>
+                            <p>Within ____ days from the date of payment<br/>
+                            received. Shipment coast will be beared by consinee.
+                            </p>
+                          </td>
+                        </tr>
+                      <tr>
+                        <td width="100%" colspan="2">
+                          <div class=".row">
+                            <table width="100%" class="table table-bordered table-responsive">
+                              <tbody>
+                                <tr>
+                                  <th>Sr no</th>
+                                  <th>Ref code</th>
+                                  <th>Description</th>
+                                  <th>Price per piece</th>
+                                  <th>No of piece</th>
+                                  <th>Amount</th>
+                                </tr>
+                                <t t-if="o.invoice_line">
+                                  <t t-set="count" t-value="1"/>
+                                  <t t-foreach="o.invoice_line" t-as="il">
+                                    <tr>
+                                      <td>
+                                        <span t-esc="count"/>
+                                        <span t-set="count" t-value="count + 1"/>
+                                      </td>
+                                      <td ><span t-field="il.product_id"/></td>
+                                      <td ><span t-field="il.name"/></td>
+                                      <td ><span t-field="il.quantity"/></td>
+                                      <td ><span t-field="il.price_unit"/></td>
+                                      <td ><span t-field="il.price_subtotal"/></td>
+                                    </tr>
+                                  </t>
+                                </t>
+                                <tr>
+                                  <td rowspan="2">Note</td>
+                                  <td colspan="2" rowspan="2"></td>
+                                  <td><b>Text</b></td>
+                                  <td colspan="2"><span t-field="o.amount_tax"/></td>
+                                </tr>
+                                <tr>
+                                  <td><b>Less</b></td>
+                                  <td colspan="2"></td>
+                                </tr>
+                                <tr>
+                                  <td>AW<span t-field="o.amount_word"/></td>
+                                  <td colspan="2"></td>
+                                  <td><b>Total Amount</b></td>
+                                  <td colspan="2"><span t-field="o.amount_total"/></td>
+                                </tr>
+                               </tbody>
+                            </table>
+                          </div>
+                        </td>
+                      </tr>
+                        <tr>
+                          <td width="50%" colspan="2">
+                          </td>
+                          <td width="50%" colspan="2">
+                          </td>
+                        </tr>
+                    </tbody>
+                  </table>
+                  </div>
+                  </div>
+               </div>
+             </t>
+           <!-- </t> -->
+         </t>
+      </template>
+    </data>
+</openerp>
