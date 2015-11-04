@@ -20,5 +20,4 @@ invoices from picking, the system is able to add and compute the shipping line.
     ],
     'demo': [],
     'test': [],
-    'installable': True,
 }
