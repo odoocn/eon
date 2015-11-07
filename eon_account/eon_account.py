@@ -1,28 +1,27 @@
-from openerp import models,fields,api, _
+import time
+from openerp import api, fields, models
 from openerp.tools import amount_to_text_en
 from openerp.tools.amount_to_text_en import amount_to_text
-import time
 
 
 class account_invoice(models.Model):
 
     _inherit = 'account.invoice'
 
-    print "\n\nExtended  Account Invoice Classs  Loadededdd......."
     proforma_number = fields.Char(string="Proforma Number")
     amount_word = fields.Char(string="Amount in Words")
-    proforma_id = fields.Many2one('proforma.account.invoice',string="Proforma Number")
+    proforma_id = fields.Many2one('proforma.account.invoice', string="Proforma Number")
     expire_date = fields.Date("Expire Date of Proforma")
-    sale_id = fields.Many2one('sale.order','Sale Order')
+    sale_id = fields.Many2one('sale.order', 'Sale Order')
     state = fields.Selection([
-                           ('draft', 'Draft'),
-                           ('proforma', 'Pro-forma'),
-                           ('proforma2', 'Pro-forma'),
-                           ('open', 'Open'),
-                           ('partial', 'Partial'),
-                           ('paid', 'Paid'),
-                           ('cancel', 'Cancelled'),
-   ], string='Status', index=True, readonly=True, default='draft',
+        ('draft', 'Draft'),
+        ('proforma', 'Pro-forma'),
+        ('proforma2', 'Pro-forma'),
+        ('open', 'Open'),
+        ('partial', 'Partial'),
+        ('paid', 'Paid'),
+        ('cancel', 'Cancelled'),
+        ], string='Status', index=True, readonly=True, default='draft',
        track_visibility='onchange', copy=False,
        help=" * The 'Draft' status is used when a user is encoding a new and unconfirmed Invoice.\n"
             " * The 'Pro-forma' when invoice is in Pro-forma status,invoice does not have an invoice number.\n"
@@ -31,12 +30,9 @@ class account_invoice(models.Model):
             " * The 'Paid' status is set automatically when the invoice is paid. Its related journal entries may or may not be reconciled.\n"
             " * The 'Cancelled' status is used when user cancel invoice.")
 
-
-
     @api.one
     @api.depends('invoice_line.price_subtotal', 'tax_line.amount')
     def _compute_amount(self):
-        cur_obj = self.env['res.currency']
         self.amount_untaxed = sum(line.price_subtotal for line in self.invoice_line)
         self.amount_tax = sum(line.amount for line in self.tax_line)
         self.amount_total = self.amount_untaxed + self.amount_tax
@@ -46,11 +42,11 @@ class account_invoice(models.Model):
     @api.model
     def get_sequence(self):
         '''
-            It method will be called from workflow when click on proforma button that time 
+            It method will be called from workflow when click on proforma button that time
             generate proforma sequence number.
         '''
         seq_no = self.env['ir.sequence'].get('account.invoice')
-        self.write({'proforma_number': seq_no,'ref_number': seq_no,'date_invoice': time.strftime("%Y/%m/%d")})
+        self.write({'proforma_number': seq_no, 'ref_number': seq_no, 'date_invoice': time.strftime("%Y/%m/%d")})
         return True
 
     @api.multi
@@ -63,7 +59,7 @@ class account_invoice(models.Model):
         if self.state:
             self.invoice_state(self.state)
         return True
-    
+
     @api.model
     def create_proforma_invoice(self):
         account_obj = self.env['proforma.account.invoice']
@@ -83,12 +79,12 @@ class account_invoice(models.Model):
                     'price_sub_total': line.price_subtotal,
                     'quantity': line.quantity
                 }
-                invoice_line_lst.append((0,0, invoice_line))
+                invoice_line_lst.append((0, 0, invoice_line))
             vals = {
                 'proforma_number': account.proforma_number,
                 'partner_id': account.partner_id.id,
                 'invoice_address': '',
-                'delivery_address':'',
+                'delivery_address': '',
                 'invoice_date': account.date_invoice,
                 'invoice_line_ids': invoice_line_lst,
                 'amount_untax_total': account.amount_untaxed,
@@ -102,41 +98,31 @@ class account_invoice(models.Model):
 
     @api.multi
     def confirm_paid(self):
-        print "\n\nRes....callllled,......"
         res = super(account_invoice, self).confirm_paid()
-        print "\n\nRes....callllled,......",res
         if self.state:
-            print "\n\nself.state::::::::::::::",self.state
             self.invoice_state('paid')
-        print "\n\n\nself.sale_id.state:::::::::::",self.sale_id.state
         if self.sale_id.state == 'done':
-            print "\n\nself.sale_id.state::::sale..id..::::::",self.sale_id.state
             self.sale_id.sale_order_id.write({'order_state': self.sale_id.state})
         return res
 
     @api.multi
     def invoice_validate(self):
-        print "\n\nValidate () Callled....",self
         res = super(account_invoice, self).invoice_validate()
         if self.state:
-            print "\n\nself.state::::::::::::::",self.state
             self.invoice_state('open')
         return res
 
     @api.multi
     def action_cancel(self):
         res = super(account_invoice, self).action_cancel()
-        print "\n\nRes.....",res
         if self.state:
-            print "\n\nself.state::::::::::::::",self.state
             self.invoice_state('cancel')
-        return True
+        return res
 
-    
     @api.multi
     def invoice_send_by_mail(self):
         ir_model_data = self.env['ir.model.data']
-        
+
         try:
             template_id = ir_model_data.get_object_reference('eon_account', 'email_template_invoice')
         except ValueError:
@@ -168,16 +154,17 @@ class account_invoice(models.Model):
             'context': ctx
         }
 
+
 class proforma_account_invoice(models.Model):
     _name = "proforma.account.invoice"
     _description = 'Proforma Account Invoice'
     _rec_name = 'proforma_number'
 
     proforma_number = fields.Char("Proforma invoice number")
-    partner_id = fields.Many2one('res.partner','Partner')
+    partner_id = fields.Many2one('res.partner', 'Partner')
     invoice_address = fields.Char("Invoice address")
     delivery_address = fields.Char("Delivery address")
-    invoice_date = fields.Date("Invoice date ")
+    invoice_date = fields.Date("Invoice date")
     invoice_line_ids = fields.One2many("proforma.invoice.line", "proforma_id", string="Proforma Invoice Line")
     amount_untax_total = fields.Float("Sub Total")
     amount_tax = fields.Float("Tax")
@@ -188,7 +175,7 @@ class proforma_account_invoice(models.Model):
 class proforma_invoice_line(models.Model):
     _name = "proforma.invoice.line"
     _description = 'Proforma Invoice Line'
-    
+
     proforma_id = fields.Many2one("proforma.account.invoice", string="Proforma Number")
     product_id = fields.Many2one("product.product", string="Product")
     name = fields.Char("Description")
@@ -198,6 +185,7 @@ class proforma_invoice_line(models.Model):
     invoice_line_taxes_ids = fields.Many2many("account.tax", "rel_acc_line_tax", "rel_tax_id", "rel_pro_id", 'Taxes')
     price_sub_total = fields.Float(string="Price Sub Total")
 
+
 class account_voucher(models.Model):
     _inherit = "account.voucher"
 
@@ -206,16 +194,13 @@ class account_voucher(models.Model):
         res = super(account_voucher, self).button_proforma_voucher()
         active_id = self._context.get('active_id', False)
         invoice_state = ''
-        order_state = ''
         if active_id:
             account_inv_rec = self.env['account.invoice'].browse(active_id)
-            print "\n\nn\account_inv_rec.residual::::::::::::::::::",account_inv_rec.residual
             if account_inv_rec.residual > 0:
                 account_inv_rec.write({'state': 'partial'})
                 invoice_state = account_inv_rec.state
                 account_inv_rec.sale_id.sale_order_id.write({'invoice_state': invoice_state})
             account_inv_rec.sale_id.sale_order_id.write({'balance': account_inv_rec.residual})
             if account_inv_rec.sale_id.invoiced and account_inv_rec.sale_id.shipped:
-                order_state = account_inv_rec.sale_id.state
-                print "\n\nAccount Invoice....update...successfully.....::::",account_inv_rec.sale_id.sale_order_id.write({'order_state': account_inv_rec.sale_id.state})
+                account_inv_rec.sale_id.sale_order_id.write({'order_state': account_inv_rec.sale_id.state})
         return res
