@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-      <template id="report_emp_sale">
+      <template id="report_delivery_challan">
         <t t-call="report.html_container">
           <t t-call="eon_account.eon_external_layout">
            <t t-foreach="docs" t-as="o">
                <div class="page" style="font-size:14px;font-family:Times New Roman;">
-                <div class="oe_structure"/>
                  <div class="container">
-                  <div style="text-align: right;"><h4>Retail Invoice</h4></div>
+                  <!-- <div><h4>Proforma Invoice</h4></div> -->
                   <table class=" float: right;table table-responsive table-bordered" width="100%" style="text-align: center;">
                     <tr>
                          <td width="50%" style="border-top:hidden;border-left:hidden;">
@@ -45,11 +44,11 @@
                               <td width="50%">
                                 <table class="table-bordered" width="100%" style="text-align:justify;">
                                 <tr>
-                                  <td width="50%">Invoice No</td><td width="50%"><span t-field="o.proforma_number"/>
+                                  <td width="50%">Delivery Challan No</td><td width="50%"><span t-field="o.name"/>
                                 </td>
                                 </tr>
                                 <tr>
-                                  <td>Date</td><td><span t-field="o.date_invoice"/>
+                                  <td>Date</td><td><span t-field="o.date"/>
                                 </td>
                                 </tr>
                                 <tr>
@@ -74,7 +73,7 @@
                           <table width="100%">
                                 <tr>
                                     <td width="33%">
-                                      <table width="100%">
+                                      <table width="100%" style="text-align: justify;">
                                       <thead>
                                         <tr>
                                           <td><b>Consignee address</b></td>
@@ -127,7 +126,7 @@
                                     </td>
                                     <td width="33%">
                                       <table width="100%">
-                                      <thead><b>Buyers (if other than consignee)</b></thead>
+                                      <thead><p><b>Buyers (if other than consignee)</b></p></thead>
                                       <tbody>
                                         <tr>
                                           <td>
@@ -213,12 +212,12 @@
                                   <th style="text-align: center;">Description</th>
                                   <th style="text-align: center;">Price per pack</th>
                                   <th style="text-align: center;">No of pack</th>
-                                  <th style="text-align: center;">Amount</th>
+                                  <!-- <th style="text-align: center;">Amount</th> -->
                                 </tr>
                               <tbody>
-                                <t t-if="o.invoice_line">
+                                <t t-if="o.move_lines">
                                   <t t-set="count" t-value="1"/>
-                                  <t t-foreach="o.invoice_line" t-as="il">
+                                  <t t-foreach="o.move_lines" t-as="il">
                                     <tr>
                                       <td>
                                         <span t-esc="count"/>
@@ -226,9 +225,9 @@
                                       </td>
                                       <td ><span t-field="il.product_id.default_code"/></td>
                                       <td ><span t-field="il.name"/></td>
-                                      <td><span t-field="il.quantity"/></td>
+                                      <td><span t-field="il.product_uom_qty"/></td>
                                       <td ><span t-field="il.price_unit"/></td>
-                                      <td ><span t-field="il.price_subtotal"/></td>
+                                      <!-- <td ><span t-field="il.price_subtotal"/></td> -->
                                     </tr>
                                   </t>
                                 </t>
@@ -241,10 +240,10 @@
                           <table width="100%">
                             <tr>
                               <td rowspan="3" width="74%">The goods listed on this invoice remain the property of EON Meditech Pvt. Ltd. <br/> until cleared proceeds of payment are received by the said company </td>
-                              <td width="13%">Subtotal</td>
-                              <td width="13%"><span t-field="o.amount_untaxed"/></td>
+                              <!-- <td width="13%">Subtotal</td> -->
+                              <!-- <td width="13%"><span t-field="o.amount_untaxed"/></td> -->
                             </tr>
-                            <tr>
+                            <!-- <tr>
                               <td width="13%">Tax</td>
                               <td width="13%"><span t-field="o.amount_tax"/></td>
                             </tr>
@@ -257,7 +256,7 @@
                               <td width="13%">Total</td>
                               <td width="13%"><span t-field="o.amount_total"/></td>
                             </tr>
-                            <!-- <tr>
+                            <tr>
                               <td rowspan="2" colspan="2">Note</td>
                               <td></td>
                               <td><b>Tax</b></td>
@@ -275,7 +274,7 @@
                             </tr> -->
                           </table>
                         </td>
-                      </tr>
+                      </tr> 
                       <!-- <tr>
                         <td colspan="2">
                           <table class="table" width="100%">
@@ -298,7 +297,6 @@
                       </tr> -->
                   </table>
                 </div>
-                <div class="oe_structure"/>
               </div>
             </t>
           </t>
@@ -306,3 +304,5 @@
       </template>
   </data>
 </openerp>
+
+

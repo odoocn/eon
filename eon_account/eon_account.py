@@ -51,7 +51,8 @@ class account_invoice(models.Model):
 
     @api.multi
     def invoice_state(self, state):
-        self.sale_id.sale_order_id.write({'invoice_state': state})
+        if self.sale_id:
+            self.sale_id.sale_order_id.write({'invoice_state': state})
         return True
 
     @api.multi

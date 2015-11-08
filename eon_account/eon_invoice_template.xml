@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-      <template id="report_emp_sale">
+      <template id="eon_invoice_report_template">
         <t t-call="report.html_container">
           <t t-call="eon_account.eon_external_layout">
            <t t-foreach="docs" t-as="o">
                <div class="page" style="font-size:14px;font-family:Times New Roman;">
-                <div class="oe_structure"/>
                  <div class="container">
-                  <div style="text-align: right;"><h4>Retail Invoice</h4></div>
+                  <div style="text-align: right;"><h4>Proforma Invoice</h4></div>
                   <table class=" float: right;table table-responsive table-bordered" width="100%" style="text-align: center;">
                     <tr>
                          <td width="50%" style="border-top:hidden;border-left:hidden;">
@@ -45,7 +44,7 @@
                               <td width="50%">
                                 <table class="table-bordered" width="100%" style="text-align:justify;">
                                 <tr>
-                                  <td width="50%">Invoice No</td><td width="50%"><span t-field="o.proforma_number"/>
+                                  <td width="50%">Proforma Invoice No</td><td width="50%"><span t-field="o.proforma_number"/>
                                 </td>
                                 </tr>
                                 <tr>
@@ -230,7 +229,7 @@
                                       <td ><span t-field="il.price_unit"/></td>
                                       <td ><span t-field="il.price_subtotal"/></td>
                                     </tr>
-                                  </t>
+                                    </t>
                                 </t>
                                </tbody>
                             </table>
@@ -298,7 +297,6 @@
                       </tr> -->
                   </table>
                 </div>
-                <div class="oe_structure"/>
               </div>
             </t>
           </t>
