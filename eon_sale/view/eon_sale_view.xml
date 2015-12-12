@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+       <!-- Sale Order of Form View -->
+       <record id="eon_sale_order_form_view" model="ir.ui.view">
+           <field name="name">My Sale Order</field>
+           <field name="model">eon.sale.order</field>
+           <field name="arch" type="xml">
+               <form string="Sales Order" >
+                   <sheet>
+                       <group col="4">
+	                       <h2> <lable string="Sale Order" />
+                         <field name="name" string="Sale Order" readonly="True"/> </h2>
+	                   </group>
+                       <group col="4">
+                           <group col="2">
+                               <field name="partner_id"/>
+                               <field name="partner_invoice_id" string="Partner Invoice"/>
+                               <field name="partner_shipping_id" string="Delivery Invoice"/>
+                               <field name="client_order_ref"/>
+                               
+                           </group>
+                           <group col="2">
+                               <field name="date_order"/>
+                               <field name="order_state" string="Sale Order Status"/>
+                               <field name="invoice_state" />
+                               <field name="picking_state" />
+                           </group>
+                       </group>
+                       <notebook>
+                          <page string="Invoice Line">
+			                          <field name="invoice_lines" colspan="1" nolabel="1" readonly="1">
+			                              <tree string="Invoice" editable="bottom">
+			                                  <field name="product_id" />
+			                                  <field name="name" />
+			                                  <field name="qty" />
+			                                  <field name="uom_id" />
+			                                  <field name="account_id" />
+			                                  <field name="account_analytic_id" />
+			                                  <field name="discount" />
+			                                  <field name="invoice_line_tax_ids" />
+			                                  <field name="price_subtotal" readonly="True" />
+			                              </tree>
+			                             <form string="Invoice">
+			                                     <field name="product_id" />
+			                                     <field name="name" />
+			                                     <field name="qty" />
+			                                     <field name="uom_id" />
+			                                     <field name="account_id" />
+			                                     <field name="account_analytic_id" />
+			                                     <field name="discount" />
+			                                     <field name="invoice_line_tax_ids" />
+			                                     <field name="price_subtotal" readonly="True" />
+			                             </form>
+			                          </field>
+			                       <newline />
+	                               <group class="oe_subtotal_footer oe_right">
+	                                   <field name="sub_total" widget="monetary" options="{'currency_field': 'currency_id'}" />
+	                                   <field name="amount_tax" widget="monetary" options="{'currency_field': 'currency_id'}" />
+	                                   <field name="invoice_total" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}" />
+                                       <field name="balance" widget="monetary" options="{'currency_field': 'currency_id'}" />
+                                   </group>
+	                               <newline />
+	                               <group string="Invoice Details" col="2">
+	                                   <field name="invoice_number" />
+	                                   <field name="invoice_date" />
+	                                   <field name="due_date" />
+	                               </group>
+	                      </page>
+                          <page string="Warehouse Line">
+                                <group string="Move Line">
+	                               <group>
+	                                   <page string="Stock Move Line">
+	                                         <field name="move_ids" readonly="1">
+		                                         <tree string="Move Line" editable="bottom">
+	                                                <field name="product_id" />
+	                                                <field name="qty" />
+	                                                <field  name="uom_id" />
+	                                                <field name="state"/>
+	                                                <field name="source_location_id" />
+	                                                <field name="destination_location_id" />
+		                                         </tree>
+		                                         <form string="Move Line">
+	                                                <field name="product_id" />
+                                                    <field name="qty" />
+                                                    <field name="uom_id" />
+                                                    <field name="state"/>
+                                                    <field name="source_location_id" />
+                                                    <field name="destination_location_id" />
+		                                         </form>
+		                                     </field>
+	                                   </page>
+	                               </group>
+	                               <newline />
+	                               <group string="Picking">
+	                                   <field name="picking_number" />
+	                                   <field name="backorder_id" readonly="1"/>
+	                                   <field name="picking_date" />
+	                               </group>
+                                </group>
+	                         </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+         <!-- Sale Order of Tree View  -->
+         <record id="eon_view_order_tree" model="ir.ui.view">
+            <field name="name">Sale Order</field>
+            <field name="model">eon.sale.order</field>
+            <field name="priority">2</field>
+            <field name="arch" type="xml">
+                <tree string="Sales Orders" create="false">
+                    <field name="partner_id"/>
+                    <field name="name" />
+                    <!-- <field name="invoice_date"/> -->
+                    <field name="invoice_number"/>
+                    <field name="order_state"/>
+                    <field name="invoice_state" />
+                    <field name="picking_state" />
+                    <field name="due_date"/>
+                    <field name="balance"/>
+                    <field name="sub_total"/>
+                    <field name="invoice_total"/>
+                </tree>
+            </field>
+        </record>
+
+    <!-- Action of My Sale Order -->
+    <record id="eon_sale_action" model="ir.actions.act_window" >
+            <field name="name">My Sale Order</field>
+            <field name="res_model">eon.sale.order</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Inherited form view of sale order -->
+    <record id="inherit_form_sale_order_view" model="ir.ui.view">
+        <field name="name">inherited.form.sale.order.view</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <field name="pricelist_id" position="after">
+                <field name="sale_order_id" readonly="1"/>
+            </field>
+        </field>
+    </record>
+
+    <menuitem id="menu_eon_sale" action="eon_sale_action" parent="base.menu_sales" name="My Sales Order" sequence="22"/>
+    </data>
+</openerp>

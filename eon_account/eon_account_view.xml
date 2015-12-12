@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <!-- Inherited form view in Account Invoice Form -->
+        <record id="inherit_account_invoice_form_view" model="ir.ui.view">
+            <field name="name">inherited.account.invoice.form.view</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_form"/>
+            <field name="arch" type="xml">
+	            <field name="invoice_line" position="attributes">
+	                <attribute name="attrs">{'readonly':[('state','not in',['draft','proforma2'])]}</attribute>
+	            </field>
+                <xpath expr="/form/header/field[@name='state']" position="replace">
+                   <field name="state" widget="statusbar" nolabel="1" statusbar_visible="draft,open,partial,paid" statusbar_colors='{"proforma":"blue","proforma2":"blue"}'/>
+               </xpath>
+
+	            <xpath expr="/form/sheet/h1/label[@string='Pro Forma Invoice']" position="replace">
+	                <field name="proforma_number" attrs="{'invisible':[('state','not in',['proforma','proforma2'])]}" readonly="True"/>
+	            </xpath>
+
+	            <xpath expr="//form/header/button[@string='Cancel Invoice']" position="after">
+                    <button name="invoice_send_by_mail" states="proforma2" string="Send By Email" class="oe_highlight" type="object"/>
+                </xpath>
+
+                <xpath expr="//form/header/button[@string='Cancel Invoice']" position="attributes">
+                    <attribute name="states">draft,proforma2,open,partial</attribute>
+                </xpath>
+                
+                <xpath expr="//form/header/button[@name='action_invoice_sent']" position="attributes">
+                    <attribute name="attrs">{'invisible':[('state', 'not in', ['open','partial'])]}</attribute>
+                </xpath>
+
+                <xpath expr="//form/header/button[@name='invoice_print']" position="attributes">
+                    <attribute name="attrs">{'invisible':[('state', 'not in', ['open','partial'])]}</attribute>
+                </xpath>
+
+                <xpath expr="//form/header/button[@string='Refund Invoice']" position="attributes">
+                    <attribute name="states">open,proforma2,paid,partial</attribute>
+                    <attribute name="groups">base.group_user</attribute>
+                </xpath>
+
+	            <field name="fiscal_position" position="after">
+                    <field name="expire_date"/>
+                </field>
+	            <field name="residual" position="after">
+	                  <table align="center" border="1" width="100px">
+	                       <tr>
+	                           <td align="left"><b><field name="amount_word" readonly="True"/></b></td>
+	                       </tr>
+	                  </table>
+	            </field>
+	            <field name="account_id" position="after">
+	               <field name="proforma_id" readonly="True"/>
+	            </field>
+	            <field name="origin" position="after">
+	               <field name="sale_id" readonly="True"/>
+	            </field>
+            </field>
+        </record>
+
+        <!-- Extended view in Voucher Payment Form View-->
+        <record id="extended_voucher_payment_form_view" model="ir.ui.view">
+            <field name="name">extended.account.voucher.form.view</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_form"/>
+            <field name="arch" type="xml">
+                <field name="invoice_line" position="attributes">
+                    <attribute name="attrs">{'readonly':[('state','not in',['draft','proforma2'])]}</attribute>
+                </field>
+                <xpath expr="//button[@name='invoice_pay_customer']" position="attributes">
+                    <attribute name="attrs">{'invisible': [('state','not in',['open','partial'])]}</attribute>
+                    <attribute name="class">oe_highlight</attribute>
+                    <attribute name="groups">base.group_user</attribute>
+               </xpath>
+            </field>
+        </record>
+
+
+        <!-- Inherited tree view in Account Invoice Form -->
+        <record id="inherit_account_invoice_tree_view" model="ir.ui.view">
+            <field name="name">inherited.account.invoice.tree.view</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_tree"/>
+            <field name="arch" type="xml">
+                <field name="date_invoice" position="after">
+                    <field name="proforma_number"/>
+                </field>
+            </field>
+        </record>
+
+        <!-- Form view of Account Invoice Proforma -->
+        <record id="proforma_account_invoice_form_view" model="ir.ui.view">
+            <field name="name">proforma.account.invoice.form.view</field>
+            <field name="model">proforma.account.invoice</field>
+            <field name="arch" type="xml">
+                    <form string="Proforma invoice">
+                        <h1><field name="proforma_number" readonly="True"/></h1>
+                        <group>
+                            <group>
+                                <field name="partner_id" />
+                                <field name="invoice_address" />
+                                <field name="delivery_address" />
+                            </group>
+                            <group>
+                                <field name="invoice_date" />
+                                <field name="user_id" />
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Proforma Invoice Line">
+                                <field name="invoice_line_ids" >
+                                    <tree editable="bottom">
+                                        <field name="product_id" />
+                                        <field name="name" />
+                                        <field name="account_id" />
+                                        <field name="quantity" />
+                                        <field name="unit_price" />
+                                        <field name="invoice_line_taxes_ids" widget="many2many_tags"/>
+                                        <field name="price_sub_total" />
+                                    </tree>
+                                    <form>
+                                        <field name="product_id" />
+                                        <field name="name" />
+                                        <field name="account_id" />
+                                        <field name="quantity" />
+                                        <field name="unit_price" />
+                                        <field name="invoice_line_taxes_ids" widget="many2many_tags"/>
+                                        <field name="price_sub_total" />
+                                    </form>
+                                </field>
+                                <group class="oe_subtotal_footer oe_right">
+	                                <field name="amount_untax_total" widget="monetary" options="{'currency_field': 'currency_id'}" />
+                                    <field name="amount_tax" widget="monetary" options="{'currency_field': 'currency_id'}" />
+	                                <field name="amount_total" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </form>
+            </field>
+        </record>
+
+    <!-- Account Invoice Proforma of Tree View -->
+        <record id="proforma_account_invoice_tree_view" model="ir.ui.view">
+            <field name="name">proforma.account.invoice.tree.view</field>
+            <field name="model">proforma.account.invoice</field>
+            <field name="arch" type="xml">
+                    <tree string="Proforma invoice">
+                        <field name="proforma_number" />
+                        <field name="partner_id" />
+                        <field name="invoice_date" />
+                        <field name="amount_total" />
+                        <field name="user_id" />
+                    </tree>
+            </field>
+        </record>
+
+    <!-- Action of Account Invoice Proforma --> 
+        <record id="action_proforma_invoice" model="ir.actions.act_window" >
+            <field name="name">Proforma Invoice </field>
+            <field name="res_model">proforma.account.invoice</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <menuitem id="menu_proforma_invoice" action="action_proforma_invoice" parent="base.menu_sales" name="Proforma Invoice" sequence="21" />
+
+    </data>
+</openerp>

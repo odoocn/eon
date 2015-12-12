@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<openerp>
+	<data>
+		<record id="view_mrp_production_workcenter_inherit_tree" model="ir.ui.view">
+			<field name="name">view.mrp.production.workcenter.line.tree</field>
+			<field name="model">mrp.production.workcenter.line</field>
+			<field name="inherit_id" ref="mrp_operations.mrp_production_workcenter_tree_view_inherit"></field>
+			<field name="arch" type="xml">
+				<field name="cycle" position="replace" >
+					<field name="input_qty" string="Input Qty"/>
+				</field>
+				<field name="hour" position="replace">
+					<field name="output_qty" string="Output Qty" />
+				</field>
+			</field>
+		</record>
+
+		<record  id="form_mrp_production_workcenter_inherited" model="ir.ui.view" >
+			<field name="name">inherit.mrp.production.workcenter.line.form</field>
+			<field name="model">mrp.production.workcenter.line</field>
+			<field name="inherit_id" ref="mrp_operations.mrp_production_workcenter_form_view_inherit"/>
+		   <field name="arch" type="xml">
+				   <xpath expr="//form/header/button[@string='Finished']" position="attributes">
+					   <attribute name="invisible">1</attribute>
+				   </xpath>
+					<xpath expr="//form/header/button[@string='Start']" position="attributes">
+					   <attribute name="invisible">1</attribute>
+				   </xpath>
+					<!-- <button name="%(action_input_qty_order)d" string="Start Order" states="draft" type="action" class="oe_highlight"/> -->
+				   <xpath expr="//form/header/button[@string='Start']" position="after">
+					   <button name="start_wiz_call" string="Start" states="draft" type="object" class="oe_highlight"/>
+				   </xpath>
+				   <xpath expr="//form/header/button[@string='Finished']" position="after">
+					   <button name="%(action_wiz_mrp_order)d" string="Finished" states="startworking" type="action" class="oe_highlight"/>
+				   </xpath>
+				   <xpath expr="//page[@string='Information']" position="before">
+						<page string="Production">
+								<group string="Quality Controll">
+									<field name="input_qty" string="Input"/>
+									<field name="output_qty" string="Output" attrs="{'readonly': [('state','not in', ['startworking'])]}" />
+									<field name="diff_qty" string="Difference" />
+									<field name="missing_reason" />
+								</group>
+						</page>
+				   </xpath>
+				   <field name="production_state" position="after">
+						<field name="workorder_code" />
+				   </field>
+			</field>
+		</record>
+
+		<!-- Inherited field in MRP Routing Workcenter Form View -->
+		<record id="inherited_mrp_routing_workcenter_view" model="ir.ui.view">
+			<field name="name">inherited.mrp.routing.workcenter.form</field>
+			<field name="model">mrp.routing.workcenter</field>
+			<field name="inherit_id" ref="mrp.mrp_routing_workcenter_form_view" />
+			<field name="arch" type="xml">
+				<field name="hour_nbr" position="after">
+					<field name="routing_code" />
+				</field>
+			</field>
+		</record>
+
+		 <!-- Inherited field in MRP Routing Workcenter Tree View -->
+		<record id="inherited_mrp_routing_workcenter_tree_view" model="ir.ui.view">
+			<field name="name">inherited.mrp.routing.workcenter.tree</field>
+			<field name="model">mrp.routing.workcenter</field>
+			<field name="inherit_id" ref="mrp.mrp_routing_workcenter_tree_view" />
+			<field name="arch" type="xml">
+				<field name="name" position="before">
+					<field name="routing_code" />
+				</field>
+			</field>
+		</record>
+
+	</data>
+</openerp>

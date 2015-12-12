@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+      <template id="report_emp_sale">
+        <t t-call="report.html_container">
+          <t t-call="eon_account.eon_external_layout">
+           <t t-foreach="docs" t-as="o">
+               <div class="page" style="font-size:14px;font-family:Times New Roman;">
+                <div class="oe_structure"/>
+                 <div class="container">
+                  <div style="text-align: right;"><h4>Retail Invoice</h4></div>
+                  <table class=" float: right;table table-responsive table-bordered" width="100%" style="text-align: center;">
+                    <tr>
+                         <td width="50%" style="border-top:hidden;border-left:hidden;">
+                         </td>
+                         <td width="50%">
+                          <table width="100%">
+                            <tr>
+                              <!-- <td width="50%">
+                                <table width="100%">
+                                  <thead>
+                                    <tr>
+                                      <td><span t-field="o.company_id.name"/></td>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <tr>
+                                      <td><span t-field="o.company_id.street"/></td>
+                                    </tr>
+                                    <tr>
+                                      <td><span t-field="o.company_id.city"/>,
+                                      <span t-field="o.company_id.state_id"/>,
+                                      <span t-field="o.company_id.country_id"/>,
+                                      <span t-field="o.company_id.zip"/> </td>
+                                    </tr>
+                                    <tr>
+                                      <td><span t-field="o.company_id.phone"/></td>
+                                    </tr>
+                                    <tr>
+                                      <td><span t-field="o.company_id.website"/></td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </td> -->
+                              <td width="50%">
+                                <table class="table-bordered" width="100%" style="text-align:justify;">
+                                <tr>
+                                  <td width="50%">Invoice No</td><td width="50%"><span t-field="o.proforma_number"/>
+                                </td>
+                                </tr>
+                                <tr>
+                                  <td>Date</td><td><span t-field="o.date_invoice"/>
+                                </td>
+                                </tr>
+                                <tr>
+                                  <td>Sales Order NO. </td>
+                                  <td><span t-field="o.sale_id"/></td>
+                                </tr>
+                                <tr>
+                                  <td>Sales Date</td>
+                                  <td><span t-field="o.sale_id.date_order"/></td>
+                                </tr>
+                                <tr>
+                                  <td>Other Reference(s)</td><td></td>
+                                </tr>
+                              </table>
+                              </td>
+                            </tr>
+                          </table>
+                         </td>
+                    </tr>
+                    <tr>
+                         <td colspan="2">
+                          <table width="100%">
+                                <tr>
+                                    <td width="33%">
+                                      <table width="100%">
+                                      <thead>
+                                        <tr>
+                                          <td><b>Consignee address</b></td>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        <tr>
+                                          <td>
+                                            <t t-if="o.partner_id.name">
+                                              <span t-field="o.partner_id.name"/>
+                                            </t>
+                                          </td>
+                                        </tr>
+                                        <tr>
+                                          <td>
+                                            <t t-if="o.partner_id.street">
+                                              <span t-field="o.partner_id.street"/>, 
+                                            </t>
+                                            <t t-if="o.partner_id.city">
+                                              <span t-field="o.partner_id.city"/>
+                                            </t>
+                                          </td>
+                                        </tr>
+                                        <tr>
+                                          <td>
+                                            <t t-if="o.partner_id.country_id">
+                                              <span t-field="o.partner_id.country_id"/>
+                                            </t>
+                                            <t t-if="o.partner_id.zip">
+                                              <span t-field="o.partner_id.zip"/>
+                                            </t>
+                                          </td>
+                                        </tr>
+                                        <tr>
+                                          <td>
+                                            <t t-if="o.partner_id.mobile">
+                                              MO: <span t-field="o.partner_id.mobile"/>, 
+                                            </t>
+                                          </td>
+                                        </tr>
+                                        <tr>
+                                          <td>
+                                            <t t-if="o.partner_id.phone">
+                                              Phone: <span t-field="o.partner_id.phone"/>
+                                            </t>
+                                          </td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
+                                    </td>
+                                    <td width="33%">
+                                      <table width="100%">
+                                      <thead><b>Buyers (if other than consignee)</b></thead>
+                                      <tbody>
+                                        <tr>
+                                          <td>
+                                            <t t-if="o.sale_id.name">
+                                              <span t-field="o.sale_id.partner_shipping_id.name"/>
+                                            </t>
+                                          </td>
+                                        </tr>
+                                        <tr>
+                                          <td>
+                                            <t t-if="o.sale_id.partner_shipping_id.street">
+                                              <span t-field="o.sale_id.partner_shipping_id.street"/>, 
+                                            </t>
+                                            <t t-if="o.sale_id.partner_shipping_id.city">
+                                              <span t-field="o.sale_id.partner_shipping_id.city"/>, 
+                                            </t>
+                                            <t t-if="o.sale_id.partner_shipping_id.state_id">
+                                              <span t-field="o.sale_id.partner_shipping_id.state_id"/>
+                                            </t>
+                                          </td>
+                                        </tr>
+                                        <tr>
+                                          <td>
+                                            <t t-if="o.sale_id.partner_shipping_id.country_id">
+                                              <span t-field="o.sale_id.partner_shipping_id.country_id"/>, 
+                                            </t>
+                                            <t t-if="o.sale_id.partner_shipping_id.zip">
+                                              <span t-field="o.sale_id.partner_shipping_id.zip"/>
+                                            </t>
+                                          </td>
+                                        </tr>
+                                        <tr>
+                                          <td>
+                                            <t t-if="o.sale_id.partner_shipping_id.mobile">MO:
+                                              <span t-field="o.sale_id.partner_shipping_id.mobile"/>
+                                            </t>
+                                          </td>
+                                        </tr>
+                                        <tr>
+                                          <td>
+                                            <t t-if="o.sale_id.partner_shipping_id.phone">Phone:
+                                              <span t-field="o.sale_id.partner_shipping_id.phone"/>
+                                            </t>
+                                          </td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
+                                    </td>
+                                    <td width="34%">
+                                      <table width="100%" >
+                                        <tr><td></td>
+                                          <!-- <td width="50%">Delivering courier</td><td><span t-field="o.sale_id.carrier_id.name"/></td> -->
+                                        </tr>
+                                        <tr>
+                                          <td>No of packages</td><td></td>
+                                        </tr>
+                                        <tr>
+                                          <td>Total weight</td><td></td>
+                                        </tr>
+                                    </table>
+                                    </td>
+                                </tr>
+                            </table>
+                         </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                          <table width="100%">
+                                <tr>
+                                  <td width="50%">Terms of payment <br/>100 % in Advanced</td>
+                                  <td width="50%">Terms of Delivery<br/>Within 15 days from the date of payment</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                      <!-- for invoice line -->
+                        <td colspan="2">
+                          <table width="100%" style="text-align: center;">
+                                <tr>
+                                  <th style="text-align: center;">Sr no</th>
+                                  <th style="text-align: center;">Ref code</th>
+                                  <th style="text-align: center;">Description</th>
+                                  <th style="text-align: center;">Price per pack</th>
+                                  <th style="text-align: center;">No of pack</th>
+                                  <th style="text-align: center;">Amount</th>
+                                </tr>
+                              <tbody>
+                                <t t-if="o.invoice_line">
+                                  <t t-set="count" t-value="1"/>
+                                  <t t-foreach="o.invoice_line" t-as="il">
+                                    <tr>
+                                      <td>
+                                        <span t-esc="count"/>
+                                        <span t-set="count" t-value="count + 1"/>
+                                      </td>
+                                      <td ><span t-field="il.product_id.default_code"/></td>
+                                      <td ><span t-field="il.name"/></td>
+                                      <td><span t-field="il.quantity"/></td>
+                                      <td ><span t-field="il.price_unit"/></td>
+                                      <td ><span t-field="il.price_subtotal"/></td>
+                                    </tr>
+                                  </t>
+                                </t>
+                               </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                      <tr>
+                        <td colspan="2">
+                          <table width="100%">
+                            <tr>
+                              <td rowspan="3" width="74%">The goods listed on this invoice remain the property of EON Meditech Pvt. Ltd. <br/> until cleared proceeds of payment are received by the said company </td>
+                              <td width="13%">Subtotal</td>
+                              <td width="13%"><span t-field="o.amount_untaxed"/></td>
+                            </tr>
+                            <tr>
+                              <td width="13%">Tax</td>
+                              <td width="13%"><span t-field="o.amount_tax"/></td>
+                            </tr>
+                            <tr>
+                              <td width="13%">Less</td>
+                              <td width="13%"></td>
+                            </tr>
+                            <tr>
+                              <td width="74%">Amount in Words :- <span t-esc="o._compute_amount()"/></td>
+                              <td width="13%">Total</td>
+                              <td width="13%"><span t-field="o.amount_total"/></td>
+                            </tr>
+                            <!-- <tr>
+                              <td rowspan="2" colspan="2">Note</td>
+                              <td></td>
+                              <td><b>Tax</b></td>
+                              <td colspan="2"><span t-field="o.amount_tax"/></td>
+                            </tr>
+                            <tr>
+                              <td><b>Less</b></td>
+                              <td colspan="2"></td>
+                            </tr>
+                            <tr>
+                              <td colspan="2">AW<span t-field="o.amount_word"/></td>
+                              <td colspan="2"></td>
+                              <td><b>Total Amount</b></td>
+                              <td colspan="2"><span t-field="o.amount_total"/></td>
+                            </tr> -->
+                          </table>
+                        </td>
+                      </tr>
+                      <!-- <tr>
+                        <td colspan="2">
+                          <table class="table" width="100%">
+                            <tr>
+                                <td width="50%">
+                                    E &amp;O.E<br/>
+                                        Subject to Surat Jurisdiction<br/>
+                                        GST No : 24222804638 dated 13.07.2007<br/>
+                                        CST No : 24722804638 dated 13.07.2007<br/>
+                                        Payment bank  detail<br/>
+                                            Account name    : EON Meditech Pvt. Ltd<br/>
+                                            Account Number  : 6411284350<br/>
+                                            Bank: Kotak Mahindra Bank<br/>
+                                            IFSC code: KKBK0000876
+                                </td>
+                                <td>For EON Meditech Pvt.Ltd</td>
+                            </tr>
+                        </table>
+                        </td>
+                      </tr> -->
+                  </table>
+                </div>
+                <div class="oe_structure"/>
+              </div>
+            </t>
+          </t>
+        </t>
+      </template>
+  </data>
+</openerp>
