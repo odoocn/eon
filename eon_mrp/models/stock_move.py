@@ -1,9 +1,9 @@
-from openerp import models, _
-from openerp.tools import float_compare
-
+from openerp import api, models, _
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT, float_compare
 
 class stock_move(models.Model):
     _inherit = 'stock.move'
+
 
     def action_consume(self, cr, uid, ids, product_qty, location_id=False, restrict_lot_id=False, restrict_partner_id=False,
                        consumed_for=False, context=None):
@@ -15,6 +15,7 @@ class stock_move(models.Model):
         @param consumed_for: optionnal parameter given to this function to make the link between raw material consumed and produced product, for a better traceability
         @return: New lines created if not everything was consumed for this line
         """
+        print "\n\n\naction_consume:::::gettt::called::mergeee::base---:::;",product_qty
         if context is None:
             context = {}
         res = []
@@ -37,14 +38,17 @@ class stock_move(models.Model):
                 raise osv.except_osv(_('Error!'), _('Cannot consume a move with negative or zero quantity.'))
             quantity_rest = move_qty - product_qty
             # Compare with numbers of move uom as we want to avoid a split with 0 qty
-            self.pool.get("product.uom")._compute_qty_obj(cr, uid, move.product_id.uom_id, product_qty, move.product_uom)
+            print "\n\n\n\nmove.product_uom_qty:::::::::",move.product_uom_qty
+            print "\n\n\n\n\nself.pool.getcompute_qty_obj(cr, uid, move.product_id.uom_id, product_qty, move.product_uom)::::",self.pool.get("product.uom")._compute_qty_obj(cr, uid, move.product_id.uom_id, product_qty, move.product_uom)
             quantity_rest_uom = move.product_uom_qty - self.pool.get("product.uom")._compute_qty_obj(cr, uid, move.product_id.uom_id, product_qty, move.product_uom)
+            print "\n\n\n\n\n\nquantity_rest_uom::::::dgjklkjlk:quantity_rest:",quantity_rest_uom,"----------",quantity_rest
             if float_compare(quantity_rest_uom, 0, precision_rounding=move.product_uom.rounding) != 0:
                 print "Split Create:::MV:::",
                 new_mov = self.split(cr, uid, move, product_qty, context=context)
                 if move.production_id:
                     self.write(cr, uid, [new_mov], {'production_id': move.production_id.id}, context=context)
                 res.append(new_mov)
+                print "\n\n\n\n\nRes:::::::::::::::::::------::",res
             vals = {'restrict_lot_id': restrict_lot_id,
                     'restrict_partner_id': restrict_partner_id,
                     'consumed_for': consumed_for}
@@ -59,6 +63,7 @@ class stock_move(models.Model):
             production_obj.signal_workflow(cr, uid, list(prod_orders), 'button_produce')
         return res
 
+
     def split(self, cr, uid, move, qty, restrict_lot_id=False, restrict_partner_id=False, context=None):
             """ Splits qty from move move into a new move
             :param move: browse record
@@ -66,7 +71,7 @@ class stock_move(models.Model):
             :param restrict_lot_id: optional production lot that can be given in order to force the new move to restrict its choice of quants to this lot.
             :param restrict_partner_id: optional partner that can be given in order to force the new move to restrict its choice of quants to the ones belonging to this partner.
             :param context: dictionay. can contains the special key 'source_location_id' in order to force the source location when copying the move
-
+    
             returns the ID of the backorder move created
             """
             if move.state in ('done', 'cancel'):
@@ -75,10 +80,10 @@ class stock_move(models.Model):
                 #we restrict the split of a draft move because if not confirmed yet, it may be replaced by several other moves in
                 #case of phantom bom (with mrp module). And we don't want to deal with this complexity by copying the product that will explode.
                 raise osv.except_osv(_('Error'), _('You cannot split a draft move. It needs to be confirmed first.'))
-
+    
             if move.product_qty <= qty or qty == 0:
                 return move.id
-
+    
             uom_obj = self.pool.get('product.uom')
             context = context or {}
             #HALF-UP rounding as only rounding errors will be because of propagation of error from default UoM

@@ -1,7 +1,10 @@
 from openerp import fields, models, api, tools
+from openerp.tools import frozendict
+import openerp.addons.decimal_precision as dp
 from openerp.tools.translate import _
 from openerp.addons.product import _common
-
+from datetime import datetime
+import time
 
 class mrp_production(models.Model):
     _inherit = 'mrp.production'
@@ -21,18 +24,18 @@ class mrp_production(models.Model):
         uom_obj = self.pool.get("product.uom")
         production = self.browse(cr, uid, production_id, context=context)
         production_qty_uom = uom_obj._compute_qty(cr, uid, production.product_uom.id, production_qty, production.product_id.uom_id.id)
-        # precision = self.pool['decimal.precision'].precision_get(cr, uid, 'Product Unit of Measure')
+        precision = self.pool['decimal.precision'].precision_get(cr, uid, 'Product Unit of Measure')
         main_production_move = False
         if production_mode == 'consume_produce':
             # To produce remaining qty of final product
-            # produced_products = {}
+            produced_products = {}
+
             for produce_product in production.move_created_ids:
                 subproduct_factor = self._get_subproduct_factor(cr, uid, production.id, produce_product.id, context=context)
                 lot_id = False
                 if wiz:
                     lot_id = wiz.lot_id.id
-                qty = min(subproduct_factor * production_qty_uom, produce_product.product_qty)
-                #Needed when producing more than maximum quantity
+                qty = min(subproduct_factor * production_qty_uom, produce_product.product_qty) #Needed when producing more than maximum quantity
                 new_moves = stock_mov_obj.action_consume(cr, uid, [produce_product.id], qty,
                                                          location_id=produce_product.location_id.id, restrict_lot_id=lot_id, context=context)
                 if produce_product.product_id.id == production.product_id.id:
@@ -71,7 +74,8 @@ class mrp_production(models.Model):
             stock_mov_obj.action_cancel(cr, uid, [x.id for x in production.move_lines], context=context)
         self.signal_workflow(cr, uid, [production_id], 'button_produce_done')
         return True
-
+    
+    
 
 class mrp_production_workcenter_line(models.Model):
     _inherit = "mrp.production.workcenter.line"
@@ -81,7 +85,12 @@ class mrp_production_workcenter_line(models.Model):
     diff_qty = fields.Float(string="Difference Quantity", readonly=True)
     missing_reason = fields.Many2one("mrp.production.missing")
     wiz_count = fields.Integer('Count', readonly=True)
-    workorder_code = fields.Char('Routing Code')
+    workorder_code = fields.Selection([
+                                    ('rmc','Raw materials counting'),
+                                    ('rmqc','Raw materials quality cheking'),
+                                    ('unpacked','Unpacked'),
+                                    ('semipacked','Semipacked'),
+                                    ('packed','Packed')], 'Routing Code', readonly=True, requred=True)
 
     @api.multi
     def start_wiz_call(self):
@@ -154,7 +163,11 @@ class missing_reason(models.Model):
 class mrp_routing_workcenter(models.Model):
     _inherit = 'mrp.routing.workcenter'
 
-    routing_code = fields.Char('Routing Code')
+    routing_code = fields.Selection([('rmc','Raw materials counting'),
+                                    ('rmqc','Raw materials quality cheking'),
+                                    ('unpacked','Unpacked'),
+                                    ('semipacked','Semipacked'),
+                                    ('packed','Packed')], 'Routing Code')
 
 
 class mrp_bom(models.Model):
@@ -184,9 +197,12 @@ class mrp_bom(models.Model):
             if factor < product_rounding:
                 factor = product_rounding
             return factor
+
         factor = _factor(factor, bom.product_efficiency, bom.product_rounding)
+
         result = []
         result2 = []
+
         routing = (routing_id and routing_obj.browse(cr, uid, routing_id)) or bom.routing_id or False
         if routing:
             for wc_use in routing.workcenter_lines:
@@ -202,11 +218,13 @@ class mrp_bom(models.Model):
                     'hour': float(wc_use.hour_nbr * mult + ((wc.time_start or 0.0) + (wc.time_stop or 0.0) + cycle * (wc.time_cycle or 0.0)) * (wc.time_efficiency or 1.0)),
                     'workorder_code': wc_use.routing_code,
                 })
+
         for bom_line_id in bom.bom_line_ids:
             if self._skip_bom_line(cr, uid, bom_line_id, product, context=context):
                 continue
             if set(map(int, bom_line_id.property_ids or [])) - set(properties or []):
                 continue
+
             if previous_products and bom_line_id.product_id.product_tmpl_id.id in previous_products:
                 raise osv.except_osv(_('Invalid Action!'), _('BoM "%s" contains a BoM line with a product recursion: "%s".') % (master_bom.name, bom_line_id.product_id.name_get()[0][1]))
 
